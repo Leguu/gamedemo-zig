@@ -10,6 +10,7 @@ pub fn main() anyerror!void {
 
     const lettuce = lsdl.Image.load(core.render, "res/lettuce.png");
 
+    var x: f32 = 0;
     var running = true;
     while (running) {
         while (lsdl.input.poll()) |event| {
@@ -24,9 +25,11 @@ pub fn main() anyerror!void {
         }
 
         if (timer_sixty.doFrame(60)) {
-            core.render.clear(lsdl.Color.black());
+            core.render.clear(lsdl.Color.gray(20));
 
-            lettuce.draw(core.render);
+            x += 1;
+
+            lettuce.drawScale(core.render, lsdl.Vector(f32).new(x, 0), 0.5);
 
             core.render.present();
 
