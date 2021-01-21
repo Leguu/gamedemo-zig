@@ -1,0 +1,3 @@
+[submodule "lsdl"]
+	path = lsdl
+	url = https://github.com/Leguu/lsdl-zig.git
