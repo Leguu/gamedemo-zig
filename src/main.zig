@@ -8,7 +8,10 @@ pub fn main() anyerror!void {
     var timer = try lsdl.Timer.new();
 
     const lettuce = lsdl.Image.load(core.render, "res/lettuce.png");
-    const human = lsdl.Spritesheet.load(core.render, "res/human_base.png", .{ .y = 18, .x = 16 });
+    const human = lsdl.Spritesheet.new(
+        lsdl.Image.loadScale(core.render, "res/human_base.png", 5),
+        .{ .y = 18, .x = 16 },
+    );
 
     var x: f32 = 0;
     var y: usize = 0;
@@ -26,18 +29,15 @@ pub fn main() anyerror!void {
             core.render.clear(lsdl.Color.uniform(20));
 
             x += 1;
-
-            lettuce.drawScale(core.render, lsdl.Vector(f32).new(x, 0), 0.5);
-
-            // human.image.drawScale(core.render, lsdl.Vector(f32).new(x, 200), 1);
-
-            try human.draw(core.render, lsdl.Vector(f32).new(x, 200), y);
-
             y += 1;
             if (y > human.length) y = 0;
 
+            lettuce.drawScale(core.render, lsdl.Vector(f32).new(x, 0));
+            try human.draw(core.render, lsdl.Vector(f32).new(x, 200), y);
+
             core.render.present();
         }
+
         timer.tick();
         timer.wait();
     }
