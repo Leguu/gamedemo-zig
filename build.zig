@@ -13,7 +13,7 @@ pub fn build(b: *Builder) void {
 
     const exe = b.addExecutable("gamedemo-zig", "src/main.zig");
 
-    exe.addPackagePath("lsdl", "lsdl/lsdl.zig");
+    exe.addPackagePath("lsdl", "./lsdl/src/lsdl.zig");
     exe.linkSystemLibrary("SDL2");
     exe.linkSystemLibrary("SDL2_image");
     exe.linkLibC();
