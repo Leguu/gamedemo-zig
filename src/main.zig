@@ -8,13 +8,14 @@ pub fn main() anyerror!void {
     var timer = try lsdl.Timer.new();
 
     const lettuce = lsdl.Image.load(core.render, "res/lettuce.png");
-    const human = lsdl.Spritesheet.new(
-        lsdl.Image.loadScale(core.render, "res/human_base.png", 5),
-        .{ .y = 18, .x = 16 },
-    );
 
-    var x: f32 = 0;
-    var y: usize = 0;
+    const human = lsdl.Spritesheet.new(
+        lsdl.Image.loadScale(core.render, "res/armorleft.png", 5),
+        .{ .y = 32, .x = 32 },
+    );
+    var human_anim = lsdl.Animation.new(human, 120 * std.time.ns_per_ms);
+
+    var pos = lsdl.Vector(f32).zero();
     var running = true;
     while (running) {
         while (lsdl.input.poll()) |event| {
@@ -22,18 +23,31 @@ pub fn main() anyerror!void {
                 running = false;
             }
 
-            if (event.button.button == lsdl.scancode.SPACE) x = 0;
+            // if (event.button.button == lsdl.scancode.SPACE) x = 0;
         }
 
-        if (timer.doFrame()) {
-            core.render.clear(lsdl.Color.uniform(20));
+        const speed = 0.2;
+        if (lsdl.input.keyboardPressed(lsdl.scancode.W)) pos.y -= speed;
+        if (lsdl.input.keyboardPressed(lsdl.scancode.A)) pos.x -= speed;
+        if (lsdl.input.keyboardPressed(lsdl.scancode.S)) pos.y += speed;
+        if (lsdl.input.keyboardPressed(lsdl.scancode.D)) pos.x += speed;
 
-            x += 1;
-            y += 1;
-            if (y > human.length) y = 0;
+        const window_size = core.window.size().lossyCast(f32);
+        const sprite_size = human.size();
+        pos.y = lsdl.bound(pos.y, 0, window_size.y - sprite_size.y);
+        pos.x = lsdl.bound(pos.x, 0, window_size.x - sprite_size.x);
 
-            lettuce.drawScale(core.render, lsdl.Vector(f32).new(x, 0));
-            try human.draw(core.render, lsdl.Vector(f32).new(x, 200), y);
+        while (timer.doFrame()) {
+            core.render.clear(lsdl.Color.uniform(200));
+
+            // x += 1;
+            // y += 0.2;
+            // if (y > @intToFloat(f32, human.length)) y = 0;
+
+            try human_anim.drawFrame(core.render, pos, timer.deltaTime());
+
+            // lettuce.draw(core.render, lsdl.Vector(f32).new(x, 0));
+            // try human.draw(core.render, lsdl.Vector(f32).new(x, 200), @floatToInt(i32, y));
 
             core.render.present();
         }
