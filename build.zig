@@ -15,6 +15,7 @@ pub fn build(b: *Builder) void {
 
     exe.addPackagePath("lsdl", "./lsdl/src/lsdl.zig");
     exe.linkSystemLibrary("SDL2");
+    exe.linkSystemLibrary("SDL2_ttf");
     exe.linkSystemLibrary("SDL2_image");
     exe.linkLibC();
 
