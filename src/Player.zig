@@ -5,9 +5,7 @@ const Self = @This();
 const speed = 0.2;
 
 bnd: lsdl.Bounding,
-
 animation: lsdl.Animation,
-
 facing: lsdl.SDL_RendererFlip = .SDL_FLIP_NONE,
 
 pub fn new(render: lsdl.Render) Self {
@@ -15,12 +13,16 @@ pub fn new(render: lsdl.Render) Self {
         lsdl.Image.loadScale(render, "res/armorleft.png", 5),
         .{ .y = 32, .x = 32 },
     );
-    const box = lsdl.Bounding.Box.new(lsdl.Vector(f32).zero(), human.size());
-    const bnd = lsdl.Bounding.new(&[_]lsdl.Bounding.Box{box});
+    var boxes = std.heap.page_allocator.create([1]lsdl.Bounding.Box) catch unreachable;
+    boxes[0] = .{.pos = lsdl.Vector(f32).zero(), .size = human.size()};
     return Self{
         .animation = lsdl.Animation.new(human, 120 * std.time.ns_per_ms),
-        .bnd = bnd,
+        .bnd = lsdl.Bounding.new(boxes),
     };
+}
+
+pub fn deinit(self: *Self) void {
+    std.heap.page_allocator.destroy(self.bnd.boxes.ptr);
 }
 
 pub fn update(self: *Self, window_size: lsdl.Vector(f32)) void {
@@ -42,11 +44,11 @@ pub fn update(self: *Self, window_size: lsdl.Vector(f32)) void {
 
 pub fn draw(self: *Self, render: *lsdl.Render, timer: lsdl.Timer) !void {
     try self.animation.drawFrame(render.*, self.bnd.pos, timer.deltaTime(), .{ .flip = self.facing });
-    self.bnd.draw(render, self.bnd.pos.lossyCast(i32));
+    self.bnd.draw(render);
 }
 
 pub fn drawIdle(self: *Self, render: *lsdl.Render) !void {
     self.animation.index = 0;
     try self.animation.spritesheet.draw(render.*, self.bnd.pos, 0, .{ .flip = self.facing });
-    self.bnd.draw(render, self.bnd.pos.lossyCast(i32));
+    self.bnd.draw(render);
 }
