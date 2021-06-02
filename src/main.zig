@@ -2,16 +2,22 @@ const std = @import("std");
 const lsdl = @import("lsdl");
 
 pub fn main() anyerror!void {
-    var core = lsdl.Core.new(lsdl.Size.new(1000, 800));
+    var core = lsdl.Core.new(lsdl.Size.new(1000, 800), .{.title = "GameDemo", 
+        .flags = .{fullscreen}}
+        );
     defer core.cleanup();
 
     var timer = try lsdl.Timer.new();
 
     var player = @import("Player.zig").new(core.render);
 
-    const font = lsdl.Font.new("res/OpenSans-Regular.ttf", 12);
+    const font = lsdl.Font.new("res/OpenSans-Regular.ttf", 34);
+    const small_font = lsdl.Font.new("res/OpenSans-Regular.ttf", 12);
 
-    var other_bounding = lsdl.Bounding.new(&[_]lsdl.Bounding.Box{lsdl.Bounding.Box.new(lsdl.Size.new(300, 300), lsdl.Size.new(32, 32))});
+    var other_bounding = lsdl.Bounding.new(&[_]lsdl.Bounding.Box{lsdl.Bounding.Box.new(.{.x = 300, .y= 300}, .{.x=160, .y=160})});
+    std.debug.print("{}\n", .{other_bounding.boxes[0].absolute});
+
+    var text = [_]u8{0} ** 1000;
 
     var running = true;
     while (running) {
@@ -26,7 +32,6 @@ pub fn main() anyerror!void {
         while (timer.doFrame()) {
             core.render.clear(lsdl.Color.uniform(200));
 
-            font.draw(core.render, .{.x = 20, .y = 20}, "Hello, world!");
 
             if (lsdl.input.keyboardPressed(lsdl.scancode.W) or
                 lsdl.input.keyboardPressed(lsdl.scancode.A) or
@@ -39,11 +44,13 @@ pub fn main() anyerror!void {
             }
 
             other_bounding.draw(&core.render, lsdl.Vector(i32).zero());
-            // if (player.bounding.colliding(other_bounding)) {
-            //     std.debug.print("Collision detected!\n", .{});
-            // } else {
-            //     std.debug.print("NOT\n", .{});
-            // }
+            if (player.bnd.colliding(other_bounding)) {
+                font.draw(core.render, .{.x = 20, .y = 20}, "Collision detected!");
+            } else {
+                font.draw(core.render, .{.x = 20, .y = 20}, "No collisions!");
+            }
+            _ = try std.fmt.bufPrint(&text, "{}", .{player.bnd.boxes[0].size});
+            small_font.draw(core.render, .{.x = 20, .y = 300}, &text);
 
             core.render.present();
         }
