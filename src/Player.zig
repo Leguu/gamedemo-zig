@@ -15,15 +15,15 @@ pub fn new(render: lsdl.Render) Self {
         .{ .y = 32, .x = 32 },
     );
     const idle_sheet = lsdl.Spritesheet.new(
-        lsdl.Image.loadScale(render, "res/armoridle.png", 5), 
-        .{ .y = 32, .x = 32},
-        );
+        lsdl.Image.loadScale(render, "res/armoridle.png", 5),
+        .{ .y = 32, .x = 32 },
+    );
     var boxes = std.heap.page_allocator.create([1]lsdl.Bounding.Box) catch unreachable;
-    boxes[0] = .{.pos = lsdl.Vector(f32).zero(), .size = walking_sheet.size()};
+    boxes[0] = .{ .pos = lsdl.Vector(f32).zero(), .size = walking_sheet.size() };
     return Self{
         .animation = lsdl.Animation.new(walking_sheet, 120),
         .idle_animation = lsdl.Animation.new(idle_sheet, 700),
-        .bnd = lsdl.Bounding.new(.{.x = 33, .y = 33}, boxes),
+        .bnd = lsdl.Bounding.new(.{ .x = 33, .y = 33 }, boxes),
     };
 }
 
@@ -55,6 +55,6 @@ pub fn draw(self: *Self, render: *lsdl.Render, timer: lsdl.Timer) !void {
 
 pub fn drawIdle(self: *Self, render: *lsdl.Render, timer: lsdl.Timer) !void {
     self.animation.index = 0;
-    try self.idle_animation.drawFrame(render.*, self.bnd.pos, timer.deltaTime(), .{.flip = self.facing});
+    try self.idle_animation.drawFrame(render.*, self.bnd.pos, timer.deltaTime(), .{ .flip = self.facing });
     self.bnd.draw(render);
 }
