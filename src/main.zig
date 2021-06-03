@@ -19,7 +19,8 @@ pub fn main() anyerror!void {
     const font = lsdl.Font.new("res/OpenSans-Regular.ttf", 34);
     const small_font = lsdl.Font.new("res/OpenSans-Regular.ttf", 12);
 
-    var other_bounding = lsdl.Bounding.new(&[_]lsdl.Bounding.Box{lsdl.Bounding.Box.new(.{ .x = 300, .y = 300 }, .{ .x = 160, .y = 160 })});
+    var boxes = [_]lsdl.Bounding.Box{.{.pos = .{ .x = 300, .y = 300 }, .size = .{ .x = 160, .y = 160 }}};
+    var other_bounding = lsdl.Bounding.new(.{.x=0, .y=0}, &boxes);
 
     var text = [_]u8{0} ** 1000;
 
@@ -43,7 +44,7 @@ pub fn main() anyerror!void {
             {
                 try player.draw(&core.render, timer);
             } else {
-                try player.drawIdle(&core.render);
+                try player.drawIdle(&core.render, timer);
             }
 
             other_bounding.draw(&core.render);
@@ -52,7 +53,7 @@ pub fn main() anyerror!void {
             } else {
                 font.draw(core.render, .{ .x = 20, .y = 20 }, "No collisions!");
             }
-            _ = try std.fmt.bufPrint(&text, "{}", .{player.bnd.boxes[0].absolute});
+            _ = try std.fmt.bufPrint(&text, "{}", .{player.bnd.boxes[0]});
             small_font.draw(core.render, .{ .x = 20, .y = 300 }, &text);
 
             core.render.present();
